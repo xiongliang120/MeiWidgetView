@@ -5,9 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import java.util.List;
 
@@ -83,11 +84,16 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
+
+
         onceCompleteScrollLength = -1;
+
+
 
         // 分离全部已有的view 放入临时缓存  mAttachedScrap 集合中
         detachAndScrapAttachedViews(recycler);
 
+        Log.i("xiongliang","执行onLayoutChildren");
         fill(recycler, state, 0);
     }
 
@@ -106,6 +112,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        Log.i("xiongliang","执行onLayoutChildren");
         // 手指从右向左滑动，dx > 0; 手指从左向右滑动，dx < 0;
         // 位移0、没有子View 当然不移动
         if (dx == 0 || getChildCount() == 0) {
@@ -153,7 +160,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                 mHorizontalOffset = dx = 0;
             }
         }
-
+//
         if (dx > 0) {
             if (mHorizontalOffset >= getMaxOffset()) {
                 // 因为在因为scrollHorizontallyBy里加了一次dx，现在减回去
@@ -166,24 +173,31 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         // 分离全部的view，加入到临时缓存
         detachAndScrapAttachedViews(recycler);
 
+
         float startX = 0;
         float fraction = 0f;
         boolean isChildLayoutLeft = true;
 
         View tempView = null;
-        int tempPosition = -1;
+        int tempPosition = 0;
 
         if (onceCompleteScrollLength == -1) {
-            // 因为mFirstVisiPos在下面可能被改变，所以用tempPosition暂存一下
-            tempPosition = mFirstVisiPos;
+//            // 因为mFirstVisiPos在下面可能被改变，所以用tempPosition暂存一下
+//            tempPosition = mFirstVisiPos;
+//            tempView = recycler.getViewForPosition(tempPosition);
+//            measureChildWithMargins(tempView, 0, 0);
+//            childWidth = getDecoratedMeasurementHorizontal(tempView);
             tempView = recycler.getViewForPosition(tempPosition);
             measureChildWithMargins(tempView, 0, 0);
             childWidth = getDecoratedMeasurementHorizontal(tempView);
         }
 
+
+
+
         // 修正第一个可见view mFirstVisiPos 已经滑动了多少个完整的onceCompleteScrollLength就代表滑动了多少个item
         firstChildCompleteScrollLength = getWidth() / 2 + childWidth / 2;
-        if (mHorizontalOffset >= firstChildCompleteScrollLength) {
+        if (mHorizontalOffset > firstChildCompleteScrollLength) { //大于而非等于
             startX = normalViewGap;
             onceCompleteScrollLength = childWidth + normalViewGap;
             mFirstVisiPos = (int) Math.floor(Math.abs(mHorizontalOffset - firstChildCompleteScrollLength) / onceCompleteScrollLength) + 1;
@@ -195,28 +209,33 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             fraction = (Math.abs(mHorizontalOffset) % onceCompleteScrollLength) / (onceCompleteScrollLength * 1.0f);
         }
 
+
         // 临时将mLastVisiPos赋值为getItemCount() - 1，放心，下面遍历时会判断view是否已溢出屏幕，并及时修正该值并结束布局
         mLastVisiPos = getItemCount() - 1;
 
         float normalViewOffset = onceCompleteScrollLength * fraction;
-        boolean isNormalViewOffsetSetted = false;
+        boolean isNormalViewOffsetSetted = false;  //第一次滑动问题???
 
         //----------------3、开始布局-----------------
         for (int i = mFirstVisiPos; i <= mLastVisiPos; i++) {
-            View item;
-            if (i == tempPosition && tempView != null) {
-                // 如果初始化数据时已经取了一个临时view
-                item = tempView;
-            } else {
-                item = recycler.getViewForPosition(i);
-            }
+            View item = recycler.getViewForPosition(i);
+//            if (i == tempPosition && tempView != null) {
+//                // 如果初始化数据时已经取了一个临时view
+//                item = tempView;
+//            } else {
+//                item = recycler.getViewForPosition(i);
+//            }
 
-            int focusPosition = (int) (Math.abs(mHorizontalOffset) / (childWidth + normalViewGap));
-            if (i <= focusPosition) {
-                addView(item);
-            } else {
-                addView(item, 0);
-            }
+//            int focusPosition = (int) (Math.abs(mHorizontalOffset) / (childWidth + normalViewGap));
+
+            addView(item);
+
+//            if (i <= focusPosition) {
+//                addView(item);
+//            } else {
+//                addView(item, 0);
+//            }
+
             measureChildWithMargins(item, 0, 0);
 
             if (!isNormalViewOffsetSetted) {
@@ -231,20 +250,20 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             b = t + getDecoratedMeasurementVertical(item);
 
             // 缩放子view
-            final float minScale = 0.6f;
-            float currentScale = 0f;
-            final int childCenterX = (r + l) / 2;
-            final int parentCenterX = getWidth() / 2;
-            isChildLayoutLeft = childCenterX <= parentCenterX;
-            if (isChildLayoutLeft) {
-                final float fractionScale = (parentCenterX - childCenterX) / (parentCenterX * 1.0f);
-                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
-            } else {
-                final float fractionScale = (childCenterX - parentCenterX) / (parentCenterX * 1.0f);
-                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
-            }
-            item.setScaleX(currentScale);
-            item.setScaleY(currentScale);
+//            final float minScale = 0.6f;
+//            float currentScale = 0f;
+//            final int childCenterX = (r + l) / 2;
+//            final int parentCenterX = getWidth() / 2;
+//            isChildLayoutLeft = childCenterX <= parentCenterX;
+//            if (isChildLayoutLeft) {
+//                final float fractionScale = (parentCenterX - childCenterX) / (parentCenterX * 1.0f);
+////                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
+//            } else {
+//                final float fractionScale = (childCenterX - parentCenterX) / (parentCenterX * 1.0f);
+////                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
+//            }
+//            item.setScaleX(currentScale);
+//            item.setScaleY(currentScale);
             // item.setAlpha(currentScale);
 
             layoutDecoratedWithMargins(item, l, t, r, b);
@@ -266,7 +285,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         switch (state) {
             case RecyclerView.SCROLL_STATE_DRAGGING:
                 //当手指按下时，停止当前正在播放的动画
-                cancelAnimator();
+//                cancelAnimator();
                 break;
             case RecyclerView.SCROLL_STATE_IDLE:
                 //当列表滚动停止后，判断一下自动选中是否打开
@@ -316,6 +335,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         long duration;
 
         float distanceFraction = (Math.abs(distance) / (childWidth + normalViewGap));
+        Log.i("xiongliang","打印漂移距离="+distance+"打印漂移百分比="+distanceFraction);
 
         if (distance <= (childWidth + normalViewGap)) {
             duration = (long) (minDuration + (maxDuration - minDuration) * distanceFraction);
@@ -324,12 +344,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         }
         selectAnimator = ValueAnimator.ofFloat(0.0f, distance);
         selectAnimator.setDuration(duration);
-        selectAnimator.setInterpolator(new LinearInterpolator());
+        selectAnimator.setInterpolator(new DecelerateInterpolator());
         final float startedOffset = mHorizontalOffset;
         selectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
+//                Log.i("xiongliang","打印动画的更新值="+value);
                 mHorizontalOffset = (long) (startedOffset + value);
                 requestLayout();
             }

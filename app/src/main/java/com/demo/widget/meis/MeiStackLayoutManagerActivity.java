@@ -7,12 +7,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.demo.widget.R;
+import com.meis.widget.manager.MyStackLayoutManager;
 import com.meis.widget.manager.StackLayoutManager;
 
 import java.util.Random;
@@ -27,7 +29,7 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
 
     RecyclerView mRecyclerView;
 
-    StackLayoutManager stackLayoutManager;
+    MyStackLayoutManager stackLayoutManager;
 
     Toolbar mToolbar;
 
@@ -46,7 +48,7 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
 
         mRecyclerView = findViewById(R.id.recycler);
         // new StackLayoutManager(this,-56) 堆叠模式
-        mRecyclerView.setLayoutManager(stackLayoutManager = new StackLayoutManager(this, 0));
+        mRecyclerView.setLayoutManager(stackLayoutManager = new MyStackLayoutManager());
 
         mRecyclerView.setAdapter(new RecyclerView.Adapter() {
             @NonNull
@@ -59,18 +61,20 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
                         new Random().nextInt(255),
                         new Random().nextInt(255)));
                 BaseViewHolder holder = new BaseViewHolder(view);
+                Log.i("xiongliang","onCreateViewHolder");
                 return holder;
             }
 
             @Override
             public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int i) {
                 ((TextView) viewHolder.itemView.findViewById(R.id.tv)).setText("" + i);
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        stackLayoutManager.smoothScrollToPosition(i, null);
-                    }
-                });
+                Log.i("xiongliang","onBindViewHolder");
+//                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        stackLayoutManager.smoothScrollToPosition(i, null);
+//                    }
+//                });
             }
 
             @Override

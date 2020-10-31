@@ -19,6 +19,8 @@ import java.util.List;
  * layoutDecoratedWithMargins(View child, int left, int top, int right,int bottom), 对view 进行布局
  * detachAndScrapAttachedViews(Recycler recycler), 将屏幕中item分离出来,放到临时缓存中
  * recycler.getViewForPosition(int position), 获取指定position的view
+ * recycler.recycleView(viewHolder.itemView), 对itemView 进行回收
+ *
  *
  * 布局:
  * onLayoutChild 布局

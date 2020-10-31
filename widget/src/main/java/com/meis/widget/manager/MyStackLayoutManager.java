@@ -34,9 +34,9 @@ import java.util.List;
  * scrollHorizontalBy() 布局
  *
  * 第一个可见View完全消失的偏移量 fisrstChildCompleteScrollLength.
- * 非第一个View 到屏幕正中心的偏移量 onceCompeleteScrollLength.
- * 累计偏移量 offsetTotal
- * Child距完整态的偏移量的百分比  fraction
+ * View 到屏幕正中心的偏移量 onceCompeleteScrollLength.
+ * 累计偏移量 offsetTotal, 即 dx 累加。
+ * view 距离到正中心偏移量的百分比  fraction
  *
  * 第一种场景: offsetTotal 小于 fisrstChildCompleteScrollLength
  * firstVisiPosition =0
@@ -44,13 +44,14 @@ import java.util.List;
  * fraction =  offsetToal%onceCompeleteScrollLength/(onceCompeleteScrollLength*1.0f)
  *
  * 第二种场景: offsetTotal 大于等于 fisrstChildCompleteScrollLength
- * firstVisiPosition = Math.abs(offsetTotal - fisrstChildCompleteScrollLength)/onceCompeleteScrollLength
  * onceCompeleteScrollLength = childWidth + viewGrap;
+ * firstVisiPosition = Math.abs(offsetTotal - fisrstChildCompleteScrollLength)/onceCompeleteScrollLength
  * fraction = offsetTotal%onceCompeleteScrollLength/(onceCompeleteScrollLength*1.0f)
  *
  * 边界:
  * 右滑到左边界, dx < 0 并且 offsetTotal <=0 时, 将 offsetTotal = 0,dx=0
- * 左滑到右边界, dx > 0 并且 offsetTotal >= getMaxOffset(), 将offset = getMaxOffset, dx=0.
+ * 左滑到右边界, dx > 0 并且 offsetTotal >= getMaxOffset(), getMaxOffset = itemCount *(childWidth+viewGrap),
+ * 将offset = getMaxOffset, dx=0.
  *
  * 回收：
  * 滑动之后
@@ -59,9 +60,8 @@ import java.util.List;
  *
  * 偏移矫正:
  * 获取应该选中的position
- * Math.abs(offset)/(childWidth+viewGrap); Math.ads(offset)%(childWidth+viewGrap)
- * 获取矫正偏移量
- * (childWidth+viewGrap)*selectPosition - offset
+ * Math.abs(offset)/(childWidth+viewGrap); Math.ads(offset)%(childWidth+viewGrap), selectPosition 应该四舍五入。
+ * 获取矫正偏移量 (childWidth+viewGrap)*selectPosition - offset
  * ValueAnimator.ofFloat(0,distance), 在update回调中 更新offset,并且重新requestLayout,进行位置矫正。
  *
  *

@@ -250,21 +250,21 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             b = t + getDecoratedMeasurementVertical(item);
 
             // 缩放子view
-//            final float minScale = 0.6f;
-//            float currentScale = 0f;
-//            final int childCenterX = (r + l) / 2;
-//            final int parentCenterX = getWidth() / 2;
-//            isChildLayoutLeft = childCenterX <= parentCenterX;
-//            if (isChildLayoutLeft) {
-//                final float fractionScale = (parentCenterX - childCenterX) / (parentCenterX * 1.0f);
-////                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
-//            } else {
-//                final float fractionScale = (childCenterX - parentCenterX) / (parentCenterX * 1.0f);
-////                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
-//            }
-//            item.setScaleX(currentScale);
-//            item.setScaleY(currentScale);
-            // item.setAlpha(currentScale);
+            final float minScale = 0.6f;
+            float currentScale = 0f;
+            final int childCenterX = (r + l) / 2;
+            final int parentCenterX = getWidth() / 2;
+            isChildLayoutLeft = childCenterX <= parentCenterX;
+            if (isChildLayoutLeft) {
+                final float fractionScale = (parentCenterX - childCenterX) / (parentCenterX * 1.0f);
+                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
+            } else {
+                final float fractionScale = (childCenterX - parentCenterX) / (parentCenterX * 1.0f);
+                currentScale = 1.0f - (1.0f - minScale) * fractionScale;
+            }
+            item.setScaleX(currentScale);
+            item.setScaleY(currentScale);
+             item.setAlpha(currentScale);
 
             layoutDecoratedWithMargins(item, l, t, r, b);
 

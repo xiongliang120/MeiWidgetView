@@ -68,7 +68,10 @@ import java.util.List;
  * ValueAnimator.ofFloat(0,distance), 在update回调中 更新offset,并且重新requestLayout,进行位置矫正。
  *
  * 点击偏移矫正：
+ * onCreateViewHolder  监听item点击事件, 并且移动到相应的position
  *
+ * 移动缩放动画：
+ * item 布局时, 计算item 相对recycleView的中心的偏移比例, 然后计算出缩放比例, 给item设置scale。
  *
  *
  * 参考链接：
@@ -179,6 +182,8 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
             int right = left + getDecoratedMeasuredWidth(itemView);
             int bottom = top + getDecoratedMeasuredHeight(itemView);
 
+            scaleItem(itemView,left,right);
+
             layoutDecoratedWithMargins(itemView,left,top,right,bottom);
 
             statX += (childWidth + viewGrap);
@@ -193,6 +198,23 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
         RecycleViewRefectUtil.getCacheSize(recycler);
 
         return dx;  //做边界判断,到达边界了返回0
+    }
+
+    /**
+     * 对Item 进行缩放
+     */
+    private void scaleItem(View itemView,int itemLeft, int itemRight){
+        int childCenterX = (itemLeft + itemRight)/2;
+        int parentCeterX = getWidth()/2;
+
+        float minScale = 0.6f; //最小缩放比例
+        float scaleFraction = 0f; //缩放比例系数
+        float scale = 0f; //缩放比例
+
+        scaleFraction = Math.abs(parentCeterX-childCenterX)/(parentCeterX * 1.0f);
+        scale = 1.0f - (1.0f-minScale)*scaleFraction;
+        itemView.setScaleX(scale);
+        itemView.setScaleY(scale);
     }
 
     /**

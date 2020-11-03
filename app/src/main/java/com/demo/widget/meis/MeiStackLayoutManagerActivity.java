@@ -60,7 +60,15 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
                         new Random().nextInt(255),
                         new Random().nextInt(255),
                         new Random().nextInt(255)));
-                BaseViewHolder holder = new BaseViewHolder(view);
+                final BaseViewHolder holder = new BaseViewHolder(view);
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int position = mRecyclerView.getChildAdapterPosition(holder.itemView);
+                        stackLayoutManager.startCorrectPosition(position);
+                    }
+                });
                 Log.i("xiongliang","onCreateViewHolder");
                 return holder;
             }
@@ -69,12 +77,7 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
             public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int i) {
                 ((TextView) viewHolder.itemView.findViewById(R.id.tv)).setText("" + i);
                 Log.i("xiongliang","onBindViewHolder");
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        stackLayoutManager.startCorrectPosition(i);
-                    }
-                });
+
             }
 
             @Override

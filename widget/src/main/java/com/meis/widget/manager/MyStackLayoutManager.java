@@ -19,9 +19,9 @@ import java.util.List;
  * getDecoratedMeasuredHeight(View child), 获取测量高度,包括ItemDecorated
  * getDecoratedMeasuredWidth(View child), 获取测量宽度
  * layoutDecoratedWithMargins(View child, int left, int top, int right,int bottom), 对view 进行布局
- * detachAndScrapAttachedViews(Recycler recycler), 将屏幕中item分离出来,放到临时缓存中
  * recycler.getViewForPosition(int position), 获取指定position的view
- * recycler.recycleView(viewHolder.itemView), 对itemView 进行回收
+ * detachAndScrapAttachedViews(Recycler recycler), 将屏幕中item detach分离出来,放到 mAttachedScrap 或 mChangedScrap(预布局状态下有效,存放正在改变的item)
+ * recycler.recycleView(viewHolder.itemView), 将mAttachedScrap和 mChangedScrap 放到 mCachedViews(默认2个)以及之后的RecycledViewPool中。
  *
  *
  * 布局:
@@ -100,6 +100,7 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
+
     /**
      * 布局Item
      * @param recycler
@@ -107,6 +108,7 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+         Log.i("xiongliang","开启预布局");
          if(state.getItemCount() == 0){
              removeAndRecycleAllViews(recycler);
              return;

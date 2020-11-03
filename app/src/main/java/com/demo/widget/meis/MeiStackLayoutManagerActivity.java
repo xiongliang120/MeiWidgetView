@@ -90,6 +90,14 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
                 return 18;
             }
         });
+
+        mRecyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getAdapter().notifyItemChanged(4);
+            }
+        },2000);
+
     }
 
     class BaseViewHolder extends RecyclerView.ViewHolder {

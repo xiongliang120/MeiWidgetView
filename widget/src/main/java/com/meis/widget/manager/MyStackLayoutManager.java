@@ -65,6 +65,11 @@ import java.util.List;
  * ValueAnimator.ofFloat(0,distance), 在update回调中 更新offset,并且重新requestLayout,进行位置矫正。
  *
  *
+ *
+ * 参考链接：
+ * https://blog.csdn.net/u012551350/article/details/93971801
+ *
+ *
  */
 
 public class MyStackLayoutManager extends RecyclerView.LayoutManager {

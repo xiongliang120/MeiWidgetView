@@ -29,7 +29,7 @@ import java.util.List;
  * measureChildWithMargins()
  * layoutDecorateWithMargins()
  *
- * 滑动：
+ * 滑动(分两段进行计算)：
  * canScrollHorizontally()
  * scrollHorizontalBy() 布局
  *
@@ -40,6 +40,7 @@ import java.util.List;
  *
  * 第一种场景: offsetTotal 小于 fisrstChildCompleteScrollLength
  * firstVisiPosition =0
+ * fisrstChildCompleteScrollLength = getWidth()/2 + childWidth/2
  * onceCompeleteScrollLength = fisrstChildCompleteScrollLength
  * fraction =  offsetToal%onceCompeleteScrollLength/(onceCompeleteScrollLength*1.0f)
  *
@@ -60,7 +61,7 @@ import java.util.List;
  *
  * 偏移矫正:
  * 获取应该选中的position
- * Math.abs(offset)/(childWidth+viewGrap); Math.ads(offset)%(childWidth+viewGrap), selectPosition 应该四舍五入。
+ * Math.abs(offset)/(childWidth+viewGrap); Math.ads(offset)%(childWidth+viewGrap), selectPosition 应该四舍五入即跟childWidth/2 比较。
  * 获取矫正偏移量 (childWidth+viewGrap)*selectPosition - offset
  * ValueAnimator.ofFloat(0,distance), 在update回调中 更新offset,并且重新requestLayout,进行位置矫正。
  *
@@ -103,7 +104,6 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
              removeAndRecycleAllViews(recycler);
              return;
          }
-
          detachAndScrapAttachedViews(recycler);
 
          fill(recycler,state,0);
@@ -129,7 +129,6 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-
         detachAndScrapAttachedViews(recycler);
 
         int statX = 0;
@@ -137,7 +136,6 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
 
         float fraction = 0f; //移动占onceCompleteScrollLength 的比例
         float normalViewOffset = 0f;
-        boolean isNormalViewOffsetSetted = false;  //第一次滑动问题
 
         if(onceCompleteScrollLength == -1){ //计算初始数据
             View itemView = recycler.getViewForPosition(0);
@@ -162,6 +160,7 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
 
         normalViewOffset = onceCompleteScrollLength*fraction;
 
+        statX -= normalViewOffset; //计算firstVisiPosition 坐标
 
         lastVisiblePosition = state.getItemCount()-1;
         for (int i=firstVisiblePositin;i<=lastVisiblePosition;i++){
@@ -171,12 +170,6 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
 
             measureChildWithMargins(itemView,0,0);
 
-            if(!isNormalViewOffsetSetted){
-                statX -= normalViewOffset;
-                isNormalViewOffsetSetted = true;
-            }
-
-
             int left = statX;
             int top = getPaddingTop();
             int right = left + getDecoratedMeasuredWidth(itemView);
@@ -185,7 +178,7 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
             layoutDecoratedWithMargins(itemView,left,top,right,bottom);
 
             statX += (childWidth + viewGrap);
-            if (statX > getWidth() - getPaddingRight()){
+            if (statX > getWidth() - getPaddingRight()){ //只创建可见的item数量
                 lastVisiblePosition = i;
                 break;
             }

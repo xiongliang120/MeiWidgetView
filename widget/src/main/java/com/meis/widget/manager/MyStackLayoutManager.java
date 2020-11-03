@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
+import com.meis.widget.utils.RecycleViewRefectUtil;
+
 import java.util.List;
 
 /**
@@ -59,11 +61,13 @@ import java.util.List;
  * recycler.getScrapList()  获取屏幕是上的Item
  * 遍历集合,recycler.recycleView(viewHolder.itemView) 进行回收
  *
- * 偏移矫正:
+ * 滑动偏移矫正:
  * 获取应该选中的position
  * Math.abs(offset)/(childWidth+viewGrap); Math.ads(offset)%(childWidth+viewGrap), selectPosition 应该四舍五入即跟childWidth/2 比较。
  * 获取矫正偏移量 (childWidth+viewGrap)*selectPosition - offset
  * ValueAnimator.ofFloat(0,distance), 在update回调中 更新offset,并且重新requestLayout,进行位置矫正。
+ *
+ * 点击偏移矫正：
  *
  *
  *
@@ -186,6 +190,8 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
 
         recycleView(recycler);
 
+        RecycleViewRefectUtil.getCacheSize(recycler);
+
         return dx;  //做边界判断,到达边界了返回0
     }
 
@@ -239,7 +245,7 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
     public void onScrollStateChanged(int state) {
         super.onScrollStateChanged(state);
         if(state == RecyclerView.SCROLL_STATE_IDLE){ //停止滑动
-             startAnimation(findShouldSelectPosition());
+            startCorrectPosition(findShouldSelectPosition());
         }else if(state == RecyclerView.SCROLL_STATE_DRAGGING){ //手指按下,开始拖拽
 
         }
@@ -268,7 +274,7 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * 滑动矫正位置
      */
-    public void startAnimation(int selectPosition){
+    public void startCorrectPosition(int selectPosition){
         int distance = (selectPosition * (childWidth + viewGrap)) - offsetTotal; //有正负
 
         int duration = 300;
@@ -281,7 +287,6 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                float value = (float) valueAnimator.getAnimatedValue();
                offsetTotal = (int) (startOffset + value);
-               Log.i("xiongliang","打印动画数值="+"offsetTotal="+offsetTotal+"value="+value);
                requestLayout();  //执行onLayoutChildren
             }
         });
@@ -289,7 +294,6 @@ public class MyStackLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                Log.i("xiongliang","动画执行完毕");
             }
         });
         valueAnimator.start();

@@ -69,12 +69,12 @@ public class MeiStackLayoutManagerActivity extends AppCompatActivity {
             public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int i) {
                 ((TextView) viewHolder.itemView.findViewById(R.id.tv)).setText("" + i);
                 Log.i("xiongliang","onBindViewHolder");
-//                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        stackLayoutManager.smoothScrollToPosition(i, null);
-//                    }
-//                });
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        stackLayoutManager.startCorrectPosition(i);
+                    }
+                });
             }
 
             @Override
